@@ -1,8 +1,19 @@
-FROM eclipse-temurin:21-jdk
+# ---------- Build Stage ----------
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /app
 
-COPY target/pagepulse-api-0.0.1-SNAPSHOT.jar app.jar
+COPY . .
+
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
+
+# ---------- Runtime Stage ----------
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/target/pagepulse-api-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
